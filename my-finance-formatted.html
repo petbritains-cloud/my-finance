@@ -39,6 +39,34 @@ nav{padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom));backg
 @media(max-width:430px){header{padding-left:17px;padding-right:17px}main{padding-left:15px;padding-right:15px}.card{padding:17px;border-radius:20px}.balance{font-size:clamp(30px,8vw,38px)}.actions{gap:9px}.actions .btn{padding:13px 9px;font-size:13px}nav button{min-width:0;flex:1;padding:8px 4px}.barrow{grid-template-columns:88px minmax(30px,1fr) 62px}}
 
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Fix transaction title and date alignment */
+.tx > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    min-width: 0;
+    gap: 5px;
+}
+
+.tx > div:first-child b {
+    display: block;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.tx > div:first-child small {
+    display: block;
+    color: var(--m);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.tx > b {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
   </style>
  </head>
  <body>
