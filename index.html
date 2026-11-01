@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>My Finance</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d2e;--panel2:#18263a;--line:#26364c;--text:#f4f7fb;--muted:#9aabc0;--green:#46d6a0;--red:#ff7185;--blue:#78a9ff;--radius:20px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:92px}
+header{padding:24px 20px 12px;display:flex;justify-content:space-between;align-items:center;max-width:760px;margin:auto}
+.brand{font-size:20px;font-weight:750;letter-spacing:-.4px}.month{color:var(--muted);font-size:13px;margin-top:4px}
+main{max-width:760px;margin:auto;padding:8px 16px 28px}
+h2{font-size:16px;margin:22px 4px 12px} .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:12px}
+.eyebrow{font-size:11px;letter-spacing:1px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.balance{font-size:34px;font-weight:800;letter-spacing:-1px;margin:8px 0 16px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:var(--panel2);border-radius:15px;padding:13px}.stat small{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.stat strong{font-size:19px}
+.green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted)}
+.progress{height:8px;background:#2a3a50;border-radius:20px;overflow:hidden;margin-top:12px}.progress span{display:block;height:100%;background:var(--green);border-radius:20px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.row+.row{margin-top:14px}
+.btn{border:0;border-radius:13px;padding:13px 16px;font-weight:700;background:var(--green);color:#06251b;font-size:14px;cursor:pointer}
+.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.btn.danger{background:#3a202b;color:#ff9aaa}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.actions .btn{flex:1}
+input,select{width:100%;background:#0d1726;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:13px;font:inherit;margin-top:6px}
+label{display:block;color:var(--muted);font-size:12px;margin:12px 0 0}
+form .btn{width:100%;margin-top:16px}
+.transaction{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.transaction:last-child{border:0;padding-bottom:0}
+.circle{width:40px;height:40px;border-radius:13px;background:var(--panel2);display:grid;place-items:center;font-size:18px}
+.txinfo{flex:1;min-width:0}.txinfo b{display:block;font-size:14px}.txinfo small{color:var(--muted);font-size:12px}
+.txamount{font-weight:750;white-space:nowrap}.empty{text-align:center;padding:24px;color:var(--muted)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#0d1726ee;border-top:1px solid var(--line);display:flex;justify-content:center;gap:6px;padding:10px 8px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(15px)}
+nav button{background:transparent;color:var(--muted);border:0;padding:8px 14px;border-radius:12px;font-size:12px;font-weight:650}nav button.active{background:var(--panel2);color:var(--green)}
+.view{display:none}.view.active{display:block}
+.barlist{display:grid;gap:13px}.barrow{display:grid;grid-template-columns:105px 1fr 65px;gap:9px;align-items:center;font-size:12px}.bartrack{height:8px;background:#29384c;border-radius:20px;overflow:hidden}.barfill{height:100%;background:var(--blue);border-radius:20px}
+.note{font-size:12px;color:var(--muted);line-height:1.5}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:end;justify-content:center;padding:12px;z-index:5}.modal.open{display:flex}.sheet{width:min(100%,560px);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px}
+.sheet h2{margin:0 0 8px;font-size:19px}.close{background:transparent;border:0;color:var(--muted);font-size:22px}
+@media(min-width:600px){main{padding-left:22px;padding-right:22px}.modal{align-items:center}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">◈ My Finance</div><div class="month" id="monthLabel"></div></div><button class="btn secondary" id="settingsBtn">⚙</button></header>
+<main>
+<section class="view active" id="dashboard">
+  <div class="card">
+    <div class="eyebrow">Money left this month</div>
+    <div class="balance" id="remaining">£0.00</div>
+    <div class="stats">
+      <div class="stat"><small>Income</small><strong class="green" id="incomeTotal">£0.00</strong></div>
+      <div class="stat"><small>Spent</small><strong id="spentTotal">£0.00</strong></div>
+    </div>
+    <div class="row" style="margin-top:17px"><small class="muted">Income used</small><small id="usedLabel" class="muted">0%</small></div>
+    <div class="progress"><span id="usedBar" style="width:0%"></span></div>
+  </div>
+  <div class="actions"><button class="btn" id="addExpense">＋ Add expense</button><button class="btn secondary" id="addIncome">＋ Add income</button></div>
+  <h2>Spending this month</h2>
+  <div class="card"><div id="categoryBars" class="barlist"><div class="empty">Add expenses to see your spending breakdown.</div></div></div>
+  <h2>Recent activity</h2>
+  <div class="card" id="recentList"><div class="empty">No transactions yet. Add your first expense.</div></div>
+</section>
+<section class="view" id="activity">
+  <div class="row"><h2>All transactions</h2><button class="btn" id="activityAdd">＋ Add</button></div>
+  <div class="card" id="allList"><div class="empty">No transactions yet.</div></div>
+</section>
+<section class="view" id="reports">
+  <h2>Monthly report</h2>
+  <div class="card">
+    <label>Choose month<input type="month" id="reportMonth"></label>
+    <div class="stats" style="margin-top:15px">
+      <div class="stat"><small>Income</small><strong class="green" id="rIncome">£0.00</strong></div>
+      <div class="stat"><small>Expenses</small><strong id="rSpent">£0.00</strong></div>
+      <div class="stat"><small>Left / saved</small><strong id="rSaved">£0.00</strong></div>
+      <div class="stat"><small>Saving rate</small><strong id="rRate">0%</strong></div>
+    </div>
+  </div>
+  <h2>Category breakdown</h2><div class="card" id="reportBars"><div class="empty">No data for this month.</div></div>
+</section>
+<section class="view" id="settings">
+  <h2>Your monthly plan</h2>
+  <div class="card">
+    <label>Monthly salary (£)<input id="salary" type="number" min="0" step="0.01" placeholder="e.g. 2500"></label>
+    <label>Other regular monthly income (£)<input id="otherIncome" type="number" min="0" step="0.01" placeholder="0"></label>
+    <button class="btn" id="saveSettings" style="width:100%;margin-top:16px">Save income settings</button>
+  </div>
+  <h2>Backup & privacy</h2>
+  <div class="card">
+    <p class="note">Your entries stay in this browser on this device. They are not sent to a bank or uploaded to a server. Export a backup regularly, especially before changing or resetting your iPhone.</p>
+    <div class="actions"><button class="btn secondary" id="exportBtn">Export backup</button><button class="btn secondary" id="importBtn">Import backup</button></div>
+    <input type="file" id="importFile" accept="application/json" hidden>
+    <button class="btn danger" id="clearBtn" style="width:100%;margin-top:12px">Delete all app data</button>
+  </div>
+  <p class="note">My Finance is a personal budgeting tool, not a bank account or financial advice service.</p>
+</section>
+</main>
+<nav>
+<button class="active" data-view="dashboard">⌂<br>Home</button><button data-view="activity">↕<br>Activity</button><button data-view="reports">▥<br>Reports</button><button data-view="settings">⚙<br>Settings</button>
+</nav>
+<div class="modal" id="modal"><div class="sheet">
+ <div class="row"><h2 id="modalTitle">Add expense</h2><button class="close" id="closeModal">×</button></div>
+ <form id="txForm">
+  <label>Type<select id="txType"><option value="expense">Expense</option><option value="income">Income</option></select></label>
+  <label>Amount (£)<input id="txAmount" type="number" min="0.01" step="0.01" required placeholder="0.00"></label>
+  <label>Category<select id="txCategory"></select></label>
+  <label>Description<input id="txDescription" maxlength="70" placeholder="e.g. Weekly shop at Asda"></label>
+  <label>Date<input id="txDate" type="date" required></label>
+  <button class="btn" type="submit">Save transaction</button>
+ </form>
+</div></div>
+<script>
+const $=id=>document.getElementById(id);
+const cats={expense:["Rent","Groceries","Petrol","Phone","Internet","Gas & electricity","Mother back home","Eating out","Shopping","Transport","Health","Other"],income:["Salary","Other income","Refund"]};
+const icons={"Rent":"🏠","Groceries":"🛒","Petrol":"⛽","Phone":"📱","Internet":"📶","Gas & electricity":"⚡","Mother back home":"❤️","Eating out":"🍽️","Shopping":"🛍️","Transport":"🚗","Health":"✚","Other":"•","Salary":"💷","Other income":"＋","Refund":"↩"};
+const key="myFinanceData_v1";
+let data=load();
+function load(){try{return JSON.parse(localStorage.getItem(key))||{salary:0,otherIncome:0,transactions:[]}}catch(e){return {salary:0,otherIncome:0,transactions:[]}}}
+function persist(){localStorage.setItem(key,JSON.stringify(data))}
+function money(n){return new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(n||0)}
+function monthKey(d){return d.slice(0,7)}
+function today(){return new Date().toISOString().slice(0,10)}
+function selectedMonth(){return $("reportMonth").value||today().slice(0,7)}
+function monthTx(m){return data.transactions.filter(t=>monthKey(t.date)===m)}
+function totals(m){let ts=monthTx(m),inc=ts.filter(t=>t.type==="income").reduce((a,t)=>a+t.amount,0),exp=ts.filter(t=>t.type==="expense").reduce((a,t)=>a+t.amount,0);if(m===today().slice(0,7))inc+=Number(data.salary||0)+Number(data.otherIncome||0);return {inc,exp,left:inc-exp}}
+function categoryHTML(m){let ts=monthTx(m).filter(t=>t.type==="expense"),map={};ts.forEach(t=>map[t.category]=(map[t.category]||0)+t.amount);let arr=Object.entries(map).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...arr.map(x=>x[1]));if(!arr.length)return '<div class="empty">Add expenses to see your spending breakdown.</div>';return arr.map(([c,v])=>`<div class="barrow"><span>${icons[c]||"•"} ${esc(c)}</span><div class="bartrack"><div class="barfill" style="width:${v/max*100}%"></div></div><b style="text-align:right">${money(v)}</b></div>`).join("")}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function txHTML(list){if(!list.length)return '<div class="empty">No transactions yet.</div>';return list.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(t=>`<div class="transaction"><div class="circle">${icons[t.category]||"•"}</div><div class="txinfo"><b>${esc(t.description||t.category)}</b><small>${esc(t.category)} · ${t.date}</small></div><div class="txamount ${t.type==="income"?"green":"red"}">${t.type==="income"?"+":"−"}${money(t.amount)}</div><button class="close" title="Delete" data-del="${t.id}">×</button></div>`).join("")}
+function render(){let m=today().slice(0,7),t=totals(m);$("monthLabel").textContent=new Date().toLocaleDateString("en-GB",{month:"long",year:"numeric"});$("remaining").textContent=money(t.left);$("incomeTotal").textContent=money(t.inc);$("spentTotal").textContent=money(t.exp);let pct=t.inc>0?Math.min(100,t.exp/t.inc*100):0;$("usedLabel").textContent=pct.toFixed(0)+"%";$("usedBar").style.width=pct+"%";$("categoryBars").innerHTML=categoryHTML(m);$("recentList").innerHTML=txHTML(monthTx(m).slice(-5).reverse());$("allList").innerHTML=txHTML(data.transactions);$("salary").value=data.salary||"";$("otherIncome").value=data.otherIncome||"";renderReport()}
+function renderReport(){let m=selectedMonth(),t=totals(m);$("rIncome").textContent=money(t.inc);$("rSpent").textContent=money(t.exp);$("rSaved").textContent=money(t.left);$("rRate").textContent=(t.inc>0?t.left/t.inc*100:0).toFixed(1)+"%";$("reportBars").innerHTML=categoryHTML(m)}
+function showView(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===v));document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.view===v));if(v==="reports")renderReport()}
+function openModal(type="expense"){$("txType").value=type;fillCats();$("txDate").value=today();$("txAmount").value="";$("txDescription").value="";$("modalTitle").textContent=type==="income"?"Add income":"Add expense";$("modal").classList.add("open")}
+function fillCats(){let type=$("txType").value;$("txCategory").innerHTML=cats[type].map(c=>`<option>${esc(c)}</option>`).join("")}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+$("addExpense").onclick=()=>openModal("expense");$("addIncome").onclick=()=>openModal("income");$("activityAdd").onclick=()=>openModal();$("settingsBtn").onclick=()=>showView("settings");
+$("closeModal").onclick=()=>$("modal").classList.remove("open");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("open")};
+$("txType").onchange=()=>{fillCats();$("modalTitle").textContent=$("txType").value==="income"?"Add income":"Add expense"};
+$("txForm").onsubmit=e=>{e.preventDefault();let amount=Number($("txAmount").value);if(!Number.isFinite(amount)||amount<=0)return;data.transactions.push({id:Date.now(),type:$("txType").value,amount,category:$("txCategory").value,description:$("txDescription").value.trim(),date:$("txDate").value});persist();$("modal").classList.remove("open");render()};
+document.addEventListener("click",e=>{let id=e.target.dataset.del;if(id&&confirm("Delete this transaction?")){data.transactions=data.transactions.filter(t=>String(t.id)!==id);persist();render()}});
+$("saveSettings").onclick=()=>{data.salary=Math.max(0,Number($("salary").value)||0);data.otherIncome=Math.max(0,Number($("otherIncome").value)||0);persist();render();alert("Income settings saved.")};
+$("reportMonth").value=today().slice(0,7);$("reportMonth").onchange=renderReport;
+$("exportBtn").onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download="my-finance-backup.json";a.click();URL.revokeObjectURL(url)};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.transactions))throw Error();data={salary:Number(d.salary)||0,otherIncome:Number(d.otherIncome)||0,transactions:d.transactions};persist();render();alert("Backup imported.")}catch(err){alert("That backup file could not be read.")}e.target.value=""};
+$("clearBtn").onclick=()=>{if(confirm("Permanently delete all income and transaction data from this browser?")){data={salary:0,otherIncome:0,transactions:[]};persist();render()}};
+fillCats();render();
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) { navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
+</script>
+</body></html>
